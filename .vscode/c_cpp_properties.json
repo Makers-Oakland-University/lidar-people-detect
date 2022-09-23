@@ -1,0 +1,31 @@
+{
+  "configurations": [
+    {
+      "browse": {
+        "databaseFilename": "${default}",
+        "limitSymbolsToIncludedHeaders": false
+      },
+      "includePath": [
+        "/home/matthew/catkin_ws/devel/include/**",
+        "/opt/ros/melodic/include/**",
+        "/home/matthew/catkin_ws/src/image_pipeline-melodic/depth_image_proc/include/**",
+        "/home/matthew/catkin_ws/src/geographic_info/geodesy/include/**",
+        "/home/matthew/catkin_ws/src/image_pipeline-melodic/image_proc/include/**",
+        "/home/matthew/catkin_ws/src/image_pipeline-melodic/stereo_image_proc/include/**",
+        "/home/matthew/catkin_ws/src/unique_identifier/unique_id/include/**",
+        "/home/matthew/catkin_ws/src/uuv_simulator/uuv_gazebo_plugins/uuv_gazebo_plugins/include/**",
+        "/home/matthew/catkin_ws/src/uuv_simulator/uuv_gazebo_plugins/uuv_gazebo_ros_plugins/include/**",
+        "/home/matthew/catkin_ws/src/uuv_simulator/uuv_sensor_plugins/uuv_sensor_ros_plugins/include/**",
+        "/home/matthew/catkin_ws/src/uuv_simulator/uuv_world_plugins/uuv_world_plugins/include/**",
+        "/home/matthew/catkin_ws/src/uuv_simulator/uuv_world_plugins/uuv_world_ros_plugins/include/**",
+        "/usr/include/**"
+      ],
+      "name": "ROS",
+      "intelliSenseMode": "gcc-x64",
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "cppStandard": "c++14"
+    }
+  ],
+  "version": 4
+}
