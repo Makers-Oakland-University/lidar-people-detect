@@ -3,9 +3,9 @@
 Requires slamtec ROS driver https://github.com/Slamtec/rplidar_ros
 
 
-Will also require Hector Slam and libuvc:
+Will also require Hector Slam, libuvc, and laser geometry:
 
-```sudo apt-get install ros-melodic-hector-slam ros-melodic-libuvc-camera```
+```sudo apt-get install ros-melodic-hector-slam ros-melodic-libuvc-camera ros-melodic-laser-geometry```
 
 
 ## Opening camera

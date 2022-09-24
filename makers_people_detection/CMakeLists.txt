@@ -9,6 +9,8 @@ project(makers_people_detection)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
     roscpp
+    eigen_conversions
+    laser_geometry
     tf)
 
 ## System dependencies are found with CMake's conventions
@@ -134,6 +136,9 @@ ${catkin_INCLUDE_DIRS}
 # add_executable(${PROJECT_NAME}_node src/makers_people_detection_node.cpp)
 add_executable(poly_gen src/poly_gen.cpp src/PolyGen.cpp)
 target_link_libraries(poly_gen ${catkin_LIBRARIES})
+
+add_executable(cloud_filter src/cloud_filter.cpp src/CloudFilter.cpp)
+target_link_libraries(cloud_filter ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the

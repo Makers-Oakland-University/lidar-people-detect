@@ -38,7 +38,7 @@
 
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
   <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" />
-
+  <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" />
 
   <!-- Record (When we need it)   -->
   <!-- <node pkg="rosbag" type="record" name="rosbag_record" args="-a -x '/image_raw/compressedDepth' -o $(find makers_people_detection)/bagfiles/test_bag.bag" /> -->
