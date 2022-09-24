@@ -8,6 +8,8 @@
 #include <geometry_msgs/Point32.h>
 #include <sensor_msgs/LaserScan.h>
 #include <sensor_msgs/PointCloud.h>
+#include <sensor_msgs/PointCloud2.h>
+#include <sensor_msgs/point_cloud_conversion.h>
 #include <laser_geometry/laser_geometry.h>
 
 

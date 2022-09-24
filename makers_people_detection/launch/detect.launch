@@ -42,7 +42,6 @@
   <node pkg="makers_people_detection" type="cluster" name="point_clustering" />
 
   <!-- Clustering, this one came from a ROS library -->
-
   <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
 
   <!-- Record (When we need it)   -->

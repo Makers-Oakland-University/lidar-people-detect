@@ -10,7 +10,7 @@ namespace makers_people_detect
     scan_sub = n.subscribe("/scan", 1, &CloudFilter::scan_callback, this);
     poly_sub = n.subscribe("/boundary_poly", 1, &CloudFilter::poly_callback, this);
 
-    cloud_pub = n.advertise<sensor_msgs::PointCloud>("filtered_point_cloud", 1);
+    cloud_pub = n.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
   }
 
   void CloudFilter::poly_callback(const geometry_msgs::PolygonStamped &msg)
@@ -38,8 +38,14 @@ namespace makers_people_detect
     //header so TF doesn't get all annoyed
     filtered_cloud.header.frame_id = msg.header.frame_id;
 
+
+    //convert to pointcloud2 (pointcloud was much easier to work with for the above algorithm)
+    
+    sensor_msgs::PointCloud2 filtered_cloud2;
+    sensor_msgs::convertPointCloudToPointCloud2(filtered_cloud, filtered_cloud2);
+
     //publish the filtered cloud
-    cloud_pub.publish(filtered_cloud);
+    cloud_pub.publish(filtered_cloud2);
   }
 
   // adapted from online resource https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
