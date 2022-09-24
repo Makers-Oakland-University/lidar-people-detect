@@ -34,4 +34,5 @@ rosparam set use_sim_time True
 
 # Approach
 
-Detection of people is performed by first definining a boundary in PolyGen.cpp, this polygon is used to filter out walls and other objects from the lidar point cloud. From there the pointcloud is filtered...
+Detection of people is performed by first definining a boundary in PolyGen.cpp, this polygon is used to filter out walls and other objects from the lidar point cloud.
+From there the pointcloud is filtered...
