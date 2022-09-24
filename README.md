@@ -11,9 +11,23 @@ Will also require Hector Slam and libuvc:
 ## Opening camera
 
 if you run into issues with the camera and get the following message: 
-```[ERROR] [1663976819.358003229]: Permission denied opening /dev/bus/usb/001/010
-[ERROR] [1663976819.371416741]: Unable to open camera.```
+```
+[ERROR] [1663976819.358003229]: Permission denied opening /dev/bus/usb/001/010
+[ERROR] [1663976819.371416741]: Unable to open camera.
+```
 then you'll need to run the following command:
-```sudo chmod o+w /dev/bus/usb/001/003```
+```
+sudo chmod o+w /dev/bus/usb/001/003
+```
 
 Follow this tutorial for more information on setting up the cameras https://msadowski.github.io/ros-web-tutorial-pt2-cameras/
+
+## Testing from rosbag
+To test from rosbag you will need to publish the /clock topic with the following statement: 
+```
+rosbag play --clock your_bag.bag
+```
+And toggle the use_sim_time environment variable 
+```
+rosparam set use_sim_time True
+```
