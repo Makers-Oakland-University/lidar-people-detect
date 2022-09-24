@@ -1,6 +1,6 @@
 # lidar-people-detect
 
-Requires slamtec ROS driver https://github.com/Slamtec/rplidar_ros
+Requires slamtec ROS driver https://github.com/Slamtec/rplidar_ros and multi-object-tracking-lidar package http://wiki.ros.org/multi_object_tracking_lidar
 
 
 Will also require Hector Slam, libuvc, and laser geometry:
