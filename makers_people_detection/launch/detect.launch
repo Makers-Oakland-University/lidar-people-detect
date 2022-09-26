@@ -39,7 +39,6 @@
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
   <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" />
   <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" />
-  <node pkg="makers_people_detection" type="cluster" name="point_clustering" />
 
   <!-- Clustering, this one came from a ROS library -->
   <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
