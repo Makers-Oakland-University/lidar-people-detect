@@ -18,6 +18,8 @@ A bounding polygon, defined by PolyGen.cpp is then generated.
 The polygon is then used in CloudFilter.cpp to remove any points that exist outside the polygon. 
 The polygon should be configured such that it is within the bounds of the operational envirionment, and thereby remove any walls or other obstructions (polygon can be any shape). 
 The pointcloud data within the polygon is then converted to a PointCloud2 and published to the multi_object_tracking_lidar node which handles the final detection of clusters and tracks people through the lidar. 
+The ObjectPrinter node handles the printing of detections, this takes the marker output of the kf tracker and parses the xy position out of the marker array. 
+In future iterations the ObjectPrinter will be used to pass this information to an external game or script.
 
 This code also contains a camera driver, the purpose of this is simply to collect images of the environment to make sense of rosbags, it does not provide any information when operating normally. 
 

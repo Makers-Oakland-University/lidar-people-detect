@@ -140,6 +140,9 @@ target_link_libraries(poly_gen ${catkin_LIBRARIES})
 add_executable(cloud_filter src/cloud_filter.cpp src/CloudFilter.cpp)
 target_link_libraries(cloud_filter ${catkin_LIBRARIES})
 
+add_executable(object_printer src/object_printer.cpp src/ObjectPrinter.cpp)
+target_link_libraries(object_printer ${catkin_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
