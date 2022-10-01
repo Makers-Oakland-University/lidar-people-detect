@@ -13,7 +13,8 @@
 #include <laser_geometry/laser_geometry.h>
 #include <tf/transform_listener.h>
 
-
+// Adapted from the cloud_filter node. Since the realsense camera has specific requirements,
+// I didn't want to destroy functionality that already works well with the lidar
 
 // Namespace matches ROS package name
 namespace makers_people_detect
@@ -24,6 +25,9 @@ namespace makers_people_detect
 #define INSIDE 0
 #define OUTSIDE 1
 
+
+//Z filter height, all points below this height will be removed from the final pointcloud
+//TODO move this to a launch parameter.
 #define Z_FILTER_HEIGHT 1.5 //meters
 
 

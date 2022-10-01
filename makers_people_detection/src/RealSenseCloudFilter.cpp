@@ -7,51 +7,62 @@ namespace makers_people_detect
   // Constructor with global and private node handle arguments
   CloudFilter::CloudFilter(ros::NodeHandle &n, ros::NodeHandle &pn)
   {
+    // subscriber for the depth points from the realsense camera
     scan_sub = n.subscribe("/camera1/depth/points", 1, &CloudFilter::cam_callback, this);
     poly_sub = n.subscribe("/boundary_poly", 1, &CloudFilter::poly_callback, this);
 
+    // publisher for the final pointcloud
     cloud_pub = n.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
   }
 
+  // when we get the polygon we simply save it to a variable for use later.
   void CloudFilter::poly_callback(const geometry_msgs::PolygonStamped &msg)
   {
     saved_poly = msg;
   }
 
-  // parse the points inside the boundary into a point cloud.
+  // receive the depth map from the camera, convert to pointcloud, transform, and filter out points
+  // we're not going to use, then publish the filtered cloud.
   void CloudFilter::cam_callback(const sensor_msgs::PointCloud2 &msg)
   {
-    sensor_msgs::PointCloud raw_camera_cloud;
 
+    /* First step is to take the raw point cloud we receive from the camera 
+    (converted externally to a pointcloud2) and convert it to a PointCloud, 
+    this is a much easier datatype to work with for the later algorithm*/
+    sensor_msgs::PointCloud raw_camera_cloud;
     sensor_msgs::convertPointCloud2ToPointCloud(msg, raw_camera_cloud);
 
+
+    /*The pointcloud is given in the frame of the camera, for everything that will come next
+    we need to have the pointcloud in the world frame. We apply a TF transform in order to map
+    the camera frame to the world frame.*/
     raw_camera_cloud.header.frame_id = msg.header.frame_id;
-
-    tf::StampedTransform transform;
-    listener.lookupTransform("/camera1_depth_optical_frame", "/map", ros::Time(0), transform);
-
     sensor_msgs::PointCloud transformed_cloud;
-    sensor_msgs::PointCloud transformed_filtered_cloud;
-
     listener.transformPointCloud("/map", raw_camera_cloud, transformed_cloud);
 
-    /// find number of points in cloud
+    
+    /*Now with the point cloud in the world frame we can perform the filtering operations on it. 
+    We create a sensor message to hold the filtered points, then loop through every point in the
+    input point cloud, for each point we will append it to the filtered cloud if
+    it meets the following conditions: 
+      - The points xy position is within the boundary polygon
+      - The z position of the cloud is above the height threshold */
     int points = raw_camera_cloud.points.size();
+    sensor_msgs::PointCloud transformed_filtered_cloud;
 
     // loop through every point, if it's inside the point cloud place it into filtered_cloud
     for (int a = 0; a < points; a++)
       if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > Z_FILTER_HEIGHT)
         transformed_filtered_cloud.points.push_back(transformed_cloud.points[a]);
 
-    // header so TF doesn't get all annoyed
+    //the filtered point cloud has no frame_id since it was created in a new message. 
+    //we have to assign the frame_id to that of the transformed cloud.
     transformed_filtered_cloud.header.frame_id = transformed_cloud.header.frame_id;
 
-    // convert to pointcloud2 (pointcloud was much easier to work with for the above algorithm)
-
+    /*Finally take the filtered cloud and convert it to a pointcloud2, this is the message type
+    that is used by the kf_tracker, then publish the result to the ROS system*/
     sensor_msgs::PointCloud2 filtered_cloud2;
     sensor_msgs::convertPointCloudToPointCloud2(transformed_filtered_cloud, filtered_cloud2);
-
-    // publish the filtered cloud
     cloud_pub.publish(filtered_cloud2);
   }
 
