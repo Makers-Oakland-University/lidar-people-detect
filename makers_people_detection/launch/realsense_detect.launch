@@ -1,0 +1,48 @@
+<launch>
+
+  <arg name="real_test" default="true" />
+  <arg name="serial_no_camera1" default="" />
+  <arg name="camera1" default="camera1" />
+  <arg name="tf_prefix_camera1" default="$(arg camera1)" />
+  <arg name="initial_reset" default="false" />
+  <arg name="reconnect_timeout" default="6.0" />
+
+  <!-- Display -->
+  <node type="rviz" name="rviz" pkg="rviz" args="-d $(find makers_people_detection)/rviz/realsense_display.rviz" />
+
+  <!-- TF Transforms -->
+  <node pkg="tf" type="static_transform_publisher" name="laser" args="0 0 0 0 0 0 1  /map /laser 100" />
+  <node pkg="tf" type="static_transform_publisher" name="camera1_tf" args="0 0 2.87 0 0.5 0 0.5  /map /camera1_link 100" />
+  <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
+
+  <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
+  <!-- <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" output="screen" /> -->
+  <!-- <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" output="screen" /> -->
+  <!-- <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen" /> -->
+
+  <node pkg="nodelet" type="nodelet" name="nodelet_manager" args="manager" />
+  <!-- Clustering, this one came from a ROS library -->
+  <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
+
+  <node pkg="makers_people_detection" type="realsense_cloud_filter" name="realsense_cloud_filter" output="screen" />
+  <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" output="screen" />
+  <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen" />
+
+  <node pkg="nodelet" type="nodelet" name="depthmanager" args="load depth_image_proc/point_cloud_xyz nodelet_manager">
+    <remap from="camera_info" to="/camera1/depth/camera_info" />
+    <remap from="image_rect" to="/camera1/depth/image_rect_raw" />
+    <remap from="points" to="/camera1/depth/points" />
+  </node>
+
+
+  <include file="$(find realsense2_camera)/launch/includes/nodelet.launch.xml" ns="$(arg camera1)">
+    <arg name="serial_no" value="$(arg serial_no_camera1)" />
+    <arg name="tf_prefix" value="$(arg tf_prefix_camera1)" />
+    <arg name="initial_reset" value="$(arg initial_reset)" />
+    <arg name="reconnect_timeout" value="$(arg reconnect_timeout)" />
+  </include>
+
+  <!-- Record (When we need it)   -->
+  <!-- <node pkg="rosbag" type="record" name="rosbag_record" args="-a -x '/image_raw/compressedDepth' -o $(find makers_people_detection)/bagfiles/realsense_test.bag" /> -->
+
+</launch>

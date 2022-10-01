@@ -143,6 +143,9 @@ target_link_libraries(cloud_filter ${catkin_LIBRARIES})
 add_executable(object_printer src/object_printer.cpp src/ObjectPrinter.cpp)
 target_link_libraries(object_printer ${catkin_LIBRARIES})
 
+add_executable(realsense_cloud_filter src/realsense_cloud_filter.cpp src/RealSenseCloudFilter.cpp)
+target_link_libraries(realsense_cloud_filter ${catkin_LIBRARIES})
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use
