@@ -26,25 +26,23 @@ namespace makers_people_detect
   void CloudFilter::cam_callback(const sensor_msgs::PointCloud2 &msg)
   {
 
-    /* First step is to take the raw point cloud we receive from the camera 
-    (converted externally to a pointcloud2) and convert it to a PointCloud, 
+    /* First step is to take the raw point cloud we receive from the camera
+    (converted externally to a pointcloud2) and convert it to a PointCloud,
     this is a much easier datatype to work with for the later algorithm*/
     sensor_msgs::PointCloud raw_camera_cloud;
     sensor_msgs::convertPointCloud2ToPointCloud(msg, raw_camera_cloud);
-
 
     /*The pointcloud is given in the frame of the camera, for everything that will come next
     we need to have the pointcloud in the world frame. We apply a TF transform in order to map
     the camera frame to the world frame.*/
     raw_camera_cloud.header.frame_id = msg.header.frame_id;
     sensor_msgs::PointCloud transformed_cloud;
-    listener.transformPointCloud("/map", raw_camera_cloud, transformed_cloud);
+    listener.transformPointCloud("map", raw_camera_cloud, transformed_cloud);
 
-    
-    /*Now with the point cloud in the world frame we can perform the filtering operations on it. 
+    /*Now with the point cloud in the world frame we can perform the filtering operations on it.
     We create a sensor message to hold the filtered points, then loop through every point in the
     input point cloud, for each point we will append it to the filtered cloud if
-    it meets the following conditions: 
+    it meets the following conditions:
       - The points xy position is within the boundary polygon
       - The z position of the cloud is above the height threshold */
     int points = raw_camera_cloud.points.size();
@@ -52,18 +50,32 @@ namespace makers_people_detect
 
     // loop through every point, if it's inside the point cloud place it into filtered_cloud
     for (int a = 0; a < points; a++)
-      if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > Z_FILTER_HEIGHT)
+      if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > Z_FILTER_HEIGHT && transformed_cloud.points[a].z < Z_FILTER_HEIGHT_UPPER)
         transformed_filtered_cloud.points.push_back(transformed_cloud.points[a]);
 
-    //the filtered point cloud has no frame_id since it was created in a new message. 
-    //we have to assign the frame_id to that of the transformed cloud.
+    // the filtered point cloud has no frame_id since it was created in a new message.
+    // we have to assign the frame_id to that of the transformed cloud.
     transformed_filtered_cloud.header.frame_id = transformed_cloud.header.frame_id;
 
     /*Finally take the filtered cloud and convert it to a pointcloud2, this is the message type
     that is used by the kf_tracker, then publish the result to the ROS system*/
     sensor_msgs::PointCloud2 filtered_cloud2;
     sensor_msgs::convertPointCloudToPointCloud2(transformed_filtered_cloud, filtered_cloud2);
-    cloud_pub.publish(filtered_cloud2);
+
+    pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud2_pcl(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromROSMsg(filtered_cloud2, *filtered_cloud2_pcl);
+
+    // Run through a voxel grid filter to downsample the cloud
+    pcl::VoxelGrid<pcl::PointXYZ> downsample;
+    downsample.setInputCloud(filtered_cloud2_pcl);
+    downsample.setLeafSize(0.05, 0.05, 0.05);
+    downsample.filter(*filtered_cloud2_pcl);
+
+    sensor_msgs::PointCloud2 downsampled_cloud_ros;
+    pcl::toROSMsg(*filtered_cloud2_pcl, downsampled_cloud_ros);
+    downsampled_cloud_ros.header = pcl_conversions::fromPCL(filtered_cloud2_pcl->header);
+
+    cloud_pub.publish(downsampled_cloud_ros);
   }
 
   // adapted from online resource https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html

@@ -12,7 +12,15 @@
 
   <!-- TF Transforms -->
   <node pkg="tf" type="static_transform_publisher" name="laser" args="0 0 0 0 0 0 1  /map /laser 100" />
-  <node pkg="tf" type="static_transform_publisher" name="camera1_tf" args="0 0 2.87 0 0.5 0 0.5  /map /camera1_link 100" />
+  <node pkg="tf" type="static_transform_publisher" name="camera1_tf" args="-2.8 -2.8 1.9 -0.00 0.03 0.16 0.99  /map /camera1_link 100" />
+
+  <!-- if you're debugging camera position you can use the reconfigurable tf publisher I've created here https://github.com/Bellafaire/ros-reconfigurable-transform -->
+  <!-- <node pkg="reconfigurable_tf" type="reconfigurable_tf_publisher" name="camera_to_map" output="screen">
+    <param name="parent_frame" value="map" />
+    <param name="child_frame" value="/camera1_link" />
+  </node>
+  <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" /> -->
+
   <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
 
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
