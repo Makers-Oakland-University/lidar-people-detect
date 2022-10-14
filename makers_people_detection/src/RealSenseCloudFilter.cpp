@@ -76,7 +76,7 @@ namespace makers_people_detect
     // Run through a voxel grid filter to downsample the cloud
     pcl::VoxelGrid<pcl::PointXYZ> downsample;
     downsample.setInputCloud(filtered_cloud2_pcl);
-    downsample.setLeafSize(0.05, 0.05, 0.05);
+    downsample.setLeafSize(cfg_.voxel_size, cfg_.voxel_size, cfg_.voxel_size);
     downsample.filter(*filtered_cloud2_pcl);
 
     sensor_msgs::PointCloud2 downsampled_cloud_ros;

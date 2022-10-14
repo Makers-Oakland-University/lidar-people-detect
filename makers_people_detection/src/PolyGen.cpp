@@ -50,26 +50,26 @@ namespace makers_people_detect
     // poly_msg.polygon.points.push_back(pt5);
 
     geometry_msgs::Point32 pt1;
-    pt1.x = 0.83*2;
-    pt1.y = -1.85 *2;
+    pt1.x = -2.368;
+    pt1.y = -3.527;
     pt1.z = 0;
     poly_msg.polygon.points.push_back(pt1);
 
     geometry_msgs::Point32 pt2;
-    pt2.x = -1.21*2;
-    pt2.y = -1.80*2;
+    pt2.x = 1.316;
+    pt2.y = -3.26;
     pt2.z = 0;
     poly_msg.polygon.points.push_back(pt2);
 
     geometry_msgs::Point32 pt3;
-    pt3.x = -1.23*2;
-    pt3.y = 1.60*2;
+    pt3.x = 1.5565;
+    pt3.y = 0.0310;
     pt3.z = 0;
     poly_msg.polygon.points.push_back(pt3);
 
     geometry_msgs::Point32 pt4;
-    pt4.x = 0.88*2;
-    pt4.y = 1.62*2;
+    pt4.x = -2.395;
+    pt4.y = -0.472;
     pt4.z = 0;
     poly_msg.polygon.points.push_back(pt4);
 
