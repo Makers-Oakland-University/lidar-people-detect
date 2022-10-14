@@ -18,8 +18,10 @@
   <!-- <node pkg="reconfigurable_tf" type="reconfigurable_tf_publisher" name="camera_to_map" output="screen">
     <param name="parent_frame" value="map" />
     <param name="child_frame" value="/camera1_link" />
-  </node>
-  <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" /> -->
+  </node> -->
+
+  
+  <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" /> 
 
   <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
 

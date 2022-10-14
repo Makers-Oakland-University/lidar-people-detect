@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
     eigen_conversions
     laser_geometry
     tf2_geometry_msgs
+    dynamic_reconfigure
     tf2_ros
     pcl_ros
 )
@@ -96,6 +97,10 @@ find_package(catkin REQUIRED COMPONENTS
 #   cfg/DynReconf2.cfg
 # )
 
+generate_dynamic_reconfigure_options(
+  cfg/PeopleDetect.cfg
+)
+
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -147,6 +152,12 @@ add_executable(object_printer src/object_printer.cpp src/ObjectPrinter.cpp)
 target_link_libraries(object_printer ${catkin_LIBRARIES})
 
 add_executable(realsense_cloud_filter src/realsense_cloud_filter.cpp src/RealSenseCloudFilter.cpp)
+
+add_dependencies(realsense_cloud_filter
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg
+)
+
 target_link_libraries(realsense_cloud_filter ${catkin_LIBRARIES})
 
 ## Rename C++ executable without prefix

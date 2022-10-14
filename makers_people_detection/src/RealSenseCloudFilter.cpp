@@ -11,6 +11,9 @@ namespace makers_people_detect
     scan_sub = n.subscribe("/camera1/depth/points", 1, &CloudFilter::cam_callback, this);
     poly_sub = n.subscribe("/boundary_poly", 1, &CloudFilter::poly_callback, this);
 
+    // bind reconfigure server
+    srv_.setCallback(boost::bind(&CloudFilter::reconfig, this, _1, _2));
+
     // publisher for the final pointcloud
     cloud_pub = n.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
   }
@@ -19,6 +22,11 @@ namespace makers_people_detect
   void CloudFilter::poly_callback(const geometry_msgs::PolygonStamped &msg)
   {
     saved_poly = msg;
+  }
+
+  void CloudFilter::reconfig(PeopleDetectConfig &config, uint32_t level)
+  {
+    cfg_ = config;
   }
 
   // receive the depth map from the camera, convert to pointcloud, transform, and filter out points
@@ -50,7 +58,7 @@ namespace makers_people_detect
 
     // loop through every point, if it's inside the point cloud place it into filtered_cloud
     for (int a = 0; a < points; a++)
-      if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > Z_FILTER_HEIGHT && transformed_cloud.points[a].z < Z_FILTER_HEIGHT_UPPER)
+      if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > cfg_.z_min && transformed_cloud.points[a].z < cfg_.z_max)
         transformed_filtered_cloud.points.push_back(transformed_cloud.points[a]);
 
     // the filtered point cloud has no frame_id since it was created in a new message.
