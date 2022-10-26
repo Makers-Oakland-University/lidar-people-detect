@@ -5,7 +5,7 @@
 namespace makers_people_detect
 {
   // Constructor with global and private node handle arguments
-  CloudFilter::CloudFilter(ros::NodeHandle &n, ros::NodeHandle &pn)
+  CloudFilter::CloudFilter(ros::NodeHandle &n, ros::NodeHandle &pn) : tf_listener(tf_buffer), kd_tree_(new pcl::search::KdTree<pcl::PointXYZ>)
   {
     // subscriber for the depth points from the realsense camera
     scan_sub = n.subscribe("/camera1/depth/points", 1, &CloudFilter::cam_callback, this);
@@ -16,6 +16,7 @@ namespace makers_people_detect
 
     // publisher for the final pointcloud
     cloud_pub = n.advertise<sensor_msgs::PointCloud2>("filtered_cloud", 1);
+    marker_pub = n.advertise<visualization_msgs::MarkerArray>("clustered_markers", 1);
   }
 
   // when we get the polygon we simply save it to a variable for use later.
@@ -33,55 +34,132 @@ namespace makers_people_detect
   // we're not going to use, then publish the filtered cloud.
   void CloudFilter::cam_callback(const sensor_msgs::PointCloud2 &msg)
   {
+    // transform to map from camera frame
+    sensor_msgs::PointCloud2 transformed_msg;
+    pcl_ros::transformPointCloud("map", msg, transformed_msg, tf_buffer);
 
-    /* First step is to take the raw point cloud we receive from the camera
-    (converted externally to a pointcloud2) and convert it to a PointCloud,
-    this is a much easier datatype to work with for the later algorithm*/
-    sensor_msgs::PointCloud raw_camera_cloud;
-    sensor_msgs::convertPointCloud2ToPointCloud(msg, raw_camera_cloud);
+    // create a pcl cloud that can be processed
+    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::fromROSMsg(transformed_msg, *cloud);
 
-    /*The pointcloud is given in the frame of the camera, for everything that will come next
-    we need to have the pointcloud in the world frame. We apply a TF transform in order to map
-    the camera frame to the world frame.*/
-    raw_camera_cloud.header.frame_id = msg.header.frame_id;
-    sensor_msgs::PointCloud transformed_cloud;
-    listener.transformPointCloud("map", raw_camera_cloud, transformed_cloud);
+    // passthrough filter based on the parameters of the dynamic reconfigure
+    pcl::IndicesPtr indices(new std::vector<int>);
+    pcl::PassThrough<pcl::PointXYZ> filter;
 
-    /*Now with the point cloud in the world frame we can perform the filtering operations on it.
-    We create a sensor message to hold the filtered points, then loop through every point in the
-    input point cloud, for each point we will append it to the filtered cloud if
-    it meets the following conditions:
-      - The points xy position is within the boundary polygon
-      - The z position of the cloud is above the height threshold */
-    int points = raw_camera_cloud.points.size();
-    sensor_msgs::PointCloud transformed_filtered_cloud;
+    filter.setInputCloud(cloud);
+    filter.setFilterFieldName("x");
+    filter.setFilterLimits(cfg_.x_min, cfg_.x_max);
+    filter.filter(*indices);
 
-    // loop through every point, if it's inside the point cloud place it into filtered_cloud
-    for (int a = 0; a < points; a++)
-      if (inside_poly(transformed_cloud.points[a]) && transformed_cloud.points[a].z > cfg_.z_min && transformed_cloud.points[a].z < cfg_.z_max)
-        transformed_filtered_cloud.points.push_back(transformed_cloud.points[a]);
+    filter.setIndices(indices);
+    filter.setFilterFieldName("y");
+    filter.setFilterLimits(cfg_.y_min, cfg_.y_max);
+    filter.filter(*indices);
 
-    // the filtered point cloud has no frame_id since it was created in a new message.
-    // we have to assign the frame_id to that of the transformed cloud.
-    transformed_filtered_cloud.header.frame_id = transformed_cloud.header.frame_id;
-
-    /*Finally take the filtered cloud and convert it to a pointcloud2, this is the message type
-    that is used by the kf_tracker, then publish the result to the ROS system*/
-    sensor_msgs::PointCloud2 filtered_cloud2;
-    sensor_msgs::convertPointCloudToPointCloud2(transformed_filtered_cloud, filtered_cloud2);
-
-    pcl::PointCloud<pcl::PointXYZ>::Ptr filtered_cloud2_pcl(new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::fromROSMsg(filtered_cloud2, *filtered_cloud2_pcl);
+    filter.setIndices(indices);
+    filter.setFilterFieldName("z");
+    filter.setFilterLimits(cfg_.z_min, cfg_.z_max);
+    filter.filter(*cloud);
 
     // Run through a voxel grid filter to downsample the cloud
     pcl::VoxelGrid<pcl::PointXYZ> downsample;
-    downsample.setInputCloud(filtered_cloud2_pcl);
+    downsample.setInputCloud(cloud);
     downsample.setLeafSize(cfg_.voxel_size, cfg_.voxel_size, cfg_.voxel_size);
-    downsample.filter(*filtered_cloud2_pcl);
+    downsample.filter(*cloud);
 
+    // Compute normal vectors for the incoming point cloud
+    pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
+    pcl::NormalEstimation<pcl::PointXYZ, pcl::Normal> normal_estimator;
+    kd_tree_->setInputCloud(cloud);
+    normal_estimator.setSearchMethod(kd_tree_);
+    normal_estimator.setInputCloud(cloud);
+    normal_estimator.setKSearch(50);
+    normal_estimator.compute(*cloud_normals);
+
+    // Filter out near-vertical normals
+    pcl::PointIndices non_vertical_normals;
+    for (int i = 0; i < cloud_normals->points.size(); i++)
+    {
+      float c_ratio = pow(cloud_normals->points[i].normal_z, 2);
+
+      if (c_ratio < cfg_.normals_filter_ratio)
+        non_vertical_normals.indices.push_back(i);
+    }
+    pcl::copyPointCloud(*cloud, non_vertical_normals, *cloud);
+
+    // Cluster the Points then recombine
+    std::vector<pcl::PointIndices> group_indices;
+    pcl::EuclideanClusterExtraction<pcl::PointXYZ> ece;
+    std::vector<pcl::PointCloud<pcl::PointXYZ>::Ptr> cluster_clouds;
+
+    ece.setClusterTolerance(cfg_.cluster_tolerance);
+    ece.setMinClusterSize(cfg_.min_cluster_points);
+    ece.setMaxClusterSize(cfg_.max_cluster_points);
+    kd_tree_->setInputCloud(cloud);
+    ece.setSearchMethod(kd_tree_);
+    ece.setInputCloud(cloud);
+
+    ece.extract(group_indices);
+
+    // split the cluster into a list of lists of points
+    for (auto indices : group_indices)
+    {
+      pcl::PointCloud<pcl::PointXYZ>::Ptr c(new pcl::PointCloud<pcl::PointXYZ>);
+      pcl::copyPointCloud(*cloud, indices, *c);
+      c->width = c->points.size();
+      c->height = 1;
+      c->is_dense = true;
+
+      cluster_clouds.push_back(c);
+    }
+
+    // now we need to loop through the clusters and generate a marker array
+    pcl::PointXYZ min_point, max_point;
+    visualization_msgs::MarkerArray mArray;
+    int marker_num = 0; 
+    for (auto &cluster : cluster_clouds)
+    {
+      pcl::getMinMax3D(*cluster, min_point, max_point);
+      visualization_msgs::Marker mark;
+      mark.header.frame_id = "map";
+      mark.id = marker_num++;
+
+      mark.color.a = 0.2; 
+      mark.color.b = 1.0; 
+      mark.color.g = 1.0;
+
+      pcl::PointXYZ min_point, max_point;
+      pcl::getMinMax3D(*cluster, min_point, max_point);
+      mark.pose.position.x = (min_point.x + max_point.x) / 2;
+      mark.pose.position.y = (min_point.y + max_point.y) / 2;
+      mark.pose.position.z = (min_point.z + max_point.z) / 2;
+
+      mark.pose.orientation.w = 1.0; // everything else will default to 0.
+
+      mark.type = visualization_msgs::Marker::SPHERE;
+
+      mark.scale.x = max_point.x - min_point.x;
+      mark.scale.y = max_point.y - min_point.y;
+      mark.scale.z = max_point.z - min_point.z;
+
+      mArray.markers.push_back(mark);
+    }
+    marker_pub.publish(mArray);
+
+    // recombine
+    pcl::PointCloud<pcl::PointXYZ>::Ptr merged(new pcl::PointCloud<pcl::PointXYZ>);
+
+    for (auto &c : cluster_clouds)
+      merged->points.insert(merged->points.begin(), c->points.begin(), c->points.end());
+
+    merged->width = merged->points.size();
+    merged->height = 1;
+    merged->is_dense = true;
+
+    // convert pointcloud to ros message
     sensor_msgs::PointCloud2 downsampled_cloud_ros;
-    pcl::toROSMsg(*filtered_cloud2_pcl, downsampled_cloud_ros);
-    downsampled_cloud_ros.header = pcl_conversions::fromPCL(filtered_cloud2_pcl->header);
+    pcl::toROSMsg(*merged, downsampled_cloud_ros);
+    downsampled_cloud_ros.header = pcl_conversions::fromPCL(cloud->header);
 
     cloud_pub.publish(downsampled_cloud_ros);
   }
@@ -123,5 +201,4 @@ namespace makers_people_detect
     else
       return (OUTSIDE);
   }
-
 }

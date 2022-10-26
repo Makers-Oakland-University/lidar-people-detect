@@ -11,10 +11,24 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <sensor_msgs/point_cloud_conversion.h>
 #include <laser_geometry/laser_geometry.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
 #include <tf/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <tf2_ros/transform_listener.h>
+#include <pcl_conversions/pcl_conversions.h>
+#include <pcl_ros/transforms.h>
+#include <pcl/filters/passthrough.h>
 
+#include <pcl/point_types.h>
+#include <pcl/common/common.h>
+#include <pcl/filters/extract_indices.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/kdtree/kdtree.h>
+#include <pcl/segmentation/extract_clusters.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl_conversions/pcl_conversions.h>
+#include <pcl/features/normal_3d.h>
 
 #include <dynamic_reconfigure/server.h>
 #include <makers_people_detection/PeopleDetectConfig.h>
@@ -56,11 +70,16 @@ namespace makers_people_detect
         geometry_msgs::PolygonStamped saved_poly;
         ros::Subscriber scan_sub;
         ros::Subscriber poly_sub;
-        ros::Publisher cloud_pub;
+        ros::Publisher cloud_pub, marker_pub;
         tf::TransformListener listener;
 
         dynamic_reconfigure::Server<PeopleDetectConfig> srv_;
         PeopleDetectConfig cfg_;
+        tf2_ros::Buffer tf_buffer;
+        tf2_ros::TransformListener tf_listener;
+
+        // KD search tree object for use by PCL functions
+        pcl::search::Search<pcl::PointXYZ>::Ptr kd_tree_;
     };
 
 }

@@ -22,7 +22,7 @@
 
   
   <node pkg="rqt_reconfigure" type="rqt_reconfigure" name="rqt_reconfigure" /> 
-
+z
   <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
 
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
