@@ -1,5 +1,6 @@
 <launch>
 
+  <arg name="output_file_location" default="$(find makers_people_detection)" />
   <arg name="real_test" default="true" />
 
   <!-- Driver Nodes (Hardware Interface -->
@@ -39,7 +40,9 @@
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
   <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" output="screen"/>
   <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" output="screen"/>
-  <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen"/>
+  <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen">
+    <param name="file_path" value="$(arg output_file_location)" />
+  </node>
 
   <!-- Clustering, this one came from a ROS library -->
   <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />

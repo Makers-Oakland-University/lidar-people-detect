@@ -6,8 +6,11 @@
 #include <ros/ros.h>
 #include <geometry_msgs/Point32.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <visualization_msgs/Marker.h>
 #include <vector>
 #include <string>
+#include <iostream>
+#include <fstream>
 
 /*Object Printer
 
@@ -33,6 +36,8 @@ namespace makers_people_detect
     void marker_callback(const visualization_msgs::MarkerArrayConstPtr& msg);
 
     ros::Subscriber marker_sub; 
+    visualization_msgs::MarkerArray previous_markers; 
+    std::string file_path; 
   };
 
 }
