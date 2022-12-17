@@ -47,6 +47,9 @@
   <!-- Clustering, this one came from a ROS library -->
   <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
 
+  <!-- location of the upper left corner of the screen, output coordinates will be in this frame -->
+  <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-1.97 0 0 0 0 -0.5 0.5  /map /screen 100" />
+
   <!-- Record (When we need it)   -->
   <!-- <node pkg="rosbag" type="record" name="rosbag_record" args="-a -x '/image_raw/compressedDepth' -o $(find makers_people_detection)/bagfiles/test_bag.bag" /> -->
 

@@ -5,12 +5,12 @@
 namespace makers_people_detect
 {
     // Constructor with global and private node handle arguments
-    ObjectPrinter::ObjectPrinter(ros::NodeHandle &n, ros::NodeHandle &pn)
+    ObjectPrinter::ObjectPrinter(ros::NodeHandle &n, ros::NodeHandle &pn) : listener_(buffer_)
     {
         ROS_INFO("Starting ObjectPrinter node");
 
         pn.param("file_path", file_path, std::string(""));
-        ROS_INFO("Object printer will output object file to %s", file_path.c_str()); 
+        ROS_INFO("Object printer will output object file to %s", file_path.c_str());
 
         marker_sub = n.subscribe("/viz", 1, &ObjectPrinter::marker_callback, this);
     }
@@ -33,6 +33,12 @@ namespace makers_people_detect
             return;
         }
 
+        if (!buffer_.canTransform("screen", "map", ros::Time(0)))
+        {
+            ROS_WARN("Waiting on transform screen -> map");
+            return;
+        }
+
         for (int a = 0; a < msg->markers.size(); a++)
             if (msg->markers[a].pose.position.x != previous_markers.markers[a].pose.position.x)
                 changed_markers.push_back(msg->markers[a]);
@@ -50,9 +56,17 @@ namespace makers_people_detect
             x_coords[a] = changed_markers[a].pose.position.x;
             y_coords[a] = changed_markers[a].pose.position.y;
 
+            // take the point in the world frame and convert it to the screen frame, This will reference (0,0) to the upper left of the screen.
+            geometry_msgs::TransformStamped world_transform;
+            world_transform = buffer_.lookupTransform("screen", "map", ros::Time(0));
+            geometry_msgs::Point p, p_out;
+            p.x = changed_markers[a].pose.position.x;
+            p.y = changed_markers[a].pose.position.y;
+            tf2::doTransform<geometry_msgs::Point>(p, p_out, world_transform);
+
             // generate the output string;
             char part[100];
-            sprintf(part, "%f,%f\n", changed_markers[a].pose.position.x, changed_markers[a].pose.position.y);
+            sprintf(part, "%f,%f\n", p_out.x, p_out.y);
 
             output.append(part);
         }
