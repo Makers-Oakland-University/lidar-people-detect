@@ -34,7 +34,7 @@
   <node type="rviz" name="rviz" pkg="rviz" args="-d $(find makers_people_detection)/rviz/rviz_display.rviz" />
 
   <!-- TF Transforms -->
-  <node pkg="tf" type="static_transform_publisher" name="laser" args="0 0 0 0 0 0 1  /map /laser 100" />
+  <node pkg="tf" type="static_transform_publisher" name="laser" args="0 0 0 0 0 0 1 /map /laser 100" />
   <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
 
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
@@ -48,7 +48,7 @@
   <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
 
   <!-- location of the upper left corner of the screen, output coordinates will be in this frame -->
-  <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-1.97 0 0 0 0 -0.5 0.5  /map /screen 100" />
+  <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-1.95 2 0 0 0 -0.5 0.5  /map /screen 100" />
 
   <!-- Record (When we need it)   -->
   <!-- <node pkg="rosbag" type="record" name="rosbag_record" args="-a -x '/image_raw/compressedDepth' -o $(find makers_people_detection)/bagfiles/test_bag.bag" /> -->
