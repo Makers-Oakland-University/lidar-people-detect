@@ -99,6 +99,7 @@ find_package(catkin REQUIRED COMPONENTS
 
 generate_dynamic_reconfigure_options(
   cfg/PeopleDetect.cfg
+  cfg/Poly.cfg
 )
 
 ###################################
@@ -143,7 +144,14 @@ ${catkin_INCLUDE_DIRS}
 ## The recommended prefix ensures that target names across packages don't collide
 # add_executable(${PROJECT_NAME}_node src/makers_people_detection_node.cpp)
 add_executable(poly_gen src/poly_gen.cpp src/PolyGen.cpp)
+
+add_dependencies(poly_gen
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg
+)
+
 target_link_libraries(poly_gen ${catkin_LIBRARIES})
+
 
 add_executable(cloud_filter src/cloud_filter.cpp src/CloudFilter.cpp)
 target_link_libraries(cloud_filter ${catkin_LIBRARIES})

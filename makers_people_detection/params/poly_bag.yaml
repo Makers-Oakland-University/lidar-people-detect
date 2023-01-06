@@ -1,0 +1,57 @@
+!!python/object/new:dynamic_reconfigure.encoding.Config
+dictitems:
+  groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+    dictitems:
+      groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      id: 0
+      name: Default
+      num_poly_points: 4
+      parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      parent: 0
+      poly_p0_x: 0.787
+      poly_p0_y: 0.924
+      poly_p1_x: 0.975
+      poly_p1_y: -2.7
+      poly_p2_x: 2.954
+      poly_p2_y: -2.128
+      poly_p3_x: 2.538
+      poly_p3_y: 1.152
+      poly_p4_x: 0.0
+      poly_p4_y: 0.0
+      poly_p5_x: 0.0
+      poly_p5_y: 0.0
+      poly_p6_x: 0.0
+      poly_p6_y: 0.0
+      poly_p7_x: 0.0
+      poly_p7_y: 0.0
+      poly_p8_x: 0.0
+      poly_p8_y: 0.0
+      poly_p9_x: 0.0
+      poly_p9_y: 0.0
+      state: true
+      type: ''
+    state: []
+  num_poly_points: 4
+  poly_p0_x: 0.787
+  poly_p0_y: 0.924
+  poly_p1_x: 0.975
+  poly_p1_y: -2.7
+  poly_p2_x: 2.954
+  poly_p2_y: -2.128
+  poly_p3_x: 2.538
+  poly_p3_y: 1.152
+  poly_p4_x: 0.0
+  poly_p4_y: 0.0
+  poly_p5_x: 0.0
+  poly_p5_y: 0.0
+  poly_p6_x: 0.0
+  poly_p6_y: 0.0
+  poly_p7_x: 0.0
+  poly_p7_y: 0.0
+  poly_p8_x: 0.0
+  poly_p8_y: 0.0
+  poly_p9_x: 0.0
+  poly_p9_y: 0.0
+state: []

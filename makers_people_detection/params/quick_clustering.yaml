@@ -1,0 +1,37 @@
+!!python/object/new:dynamic_reconfigure.encoding.Config
+dictitems:
+  cluster_tolerance: 0.25
+  groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+    dictitems:
+      cluster_tolerance: 0.25
+      groups: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      id: 0
+      max_cluster_points: 50
+      min_cluster_points: 10
+      name: Default
+      normals_filter_ratio: 0.45
+      parameters: !!python/object/new:dynamic_reconfigure.encoding.Config
+        state: []
+      parent: 0
+      state: true
+      type: ''
+      voxel_size: 0.0812
+      x_max: 1.4
+      x_min: -2.6
+      y_max: 0.9
+      y_min: -3.1
+      z_max: 1.85
+      z_min: 1.41
+    state: []
+  max_cluster_points: 50
+  min_cluster_points: 10
+  normals_filter_ratio: 0.45
+  voxel_size: 0.0812
+  x_max: 1.4
+  x_min: -2.6
+  y_max: 0.9
+  y_min: -3.1
+  z_max: 1.85
+  z_min: 1.41
+state: []
