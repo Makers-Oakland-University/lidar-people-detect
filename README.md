@@ -13,10 +13,19 @@ The goal of this repo is to detect people moving through the hallway without uti
 All systems here are built on ROS melodic (but should be runable in later versions of ros as well). 
 The setup section provides all the information required to configure a PC running ROS to run these projects. 
 
+# Games 
+
+This system is designed to work together with the [ARC-Projector-Games](https://github.com/Makers-Oakland-University/ARC-Projector-Games) repo. If you're interested in creating games for the projector display then head there to check out the created games and the available examples. 
+
+This system interfaces to the games through a textfile that is created and constantly written to by the ROS System contained in this repo. Creation of games does not require ROS knowledge or experience, the examples demonstrate how to read the positions from the file and use them to create interactive display projects. 
+
+# Tracking Approaches
+
 Currently two approaches have been tested, one uses an rplidar to detect pedestrians, the other utilizies the intel realsense camera. 
 Each approach is documented in the below sections for use. 
 
 [Lidar Demo Video (9/24/2022)](https://youtu.be/cwWT9cA8Y9Q)
+
 [Informal Realsense Demo (9/30/2022)](https://www.youtube.com/watch?v=56GA1SOgyls)
 
 ## Lidar Approach
@@ -90,9 +99,9 @@ sudo chmod o+w /dev/bus/usb/001/003
 Follow this tutorial for more information on setting up the cameras https://msadowski.github.io/ros-web-tutorial-pt2-cameras/
 
 ## Testing from rosbag
-To test from rosbag you will need to publish the /clock topic with the following statement: 
+To test from rosbag you will need to publish the /clock topic and only the raw image  + scan topics with the following line: 
 ```
-rosbag play --clock your_bag.bag
+rosbag play your_bag.bag --clock --loop --topics /scan /image_raw /clock
 ```
 And toggle the use_sim_time environment variable 
 ```
@@ -101,4 +110,4 @@ rosparam set use_sim_time True
 
 
 # ToDo 
-Interface with external scripts to enable the parsed positions from the lidar to be used with a unity/pygame to display on the projector. 
+- Clean up polygen so that it doesn't require manual re-entry whenever the environment is changed. 
