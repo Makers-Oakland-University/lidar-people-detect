@@ -160,6 +160,16 @@ add_dependencies(realsense_cloud_filter
 
 target_link_libraries(realsense_cloud_filter ${catkin_LIBRARIES})
 
+add_executable(quick_cluster src/quick_cluster.cpp src/QuickCluster.cpp)
+
+add_dependencies(quick_cluster
+  ${catkin_EXPORTED_TARGETS}
+  ${PROJECT_NAME}_gencfg
+)
+
+target_link_libraries(quick_cluster ${catkin_LIBRARIES})
+
+
 ## Rename C++ executable without prefix
 ## The above recommended prefix causes long target names, the following renames the
 ## target back to the shorter version for ease of user use

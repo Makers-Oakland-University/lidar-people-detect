@@ -38,14 +38,16 @@
   <!-- <node pkg="tf" type="static_transform_publisher" name="link_tf" args="0 0 0 0 0 0 1  /base_link /laser 100"/> -->
 
   <!-- Data Processing Scripts (The stuff we actually had to write to get information out of the data we have) -->
-  <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" output="screen"/>
-  <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" output="screen"/>
-  <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen">
+  <node pkg="makers_people_detection" type="poly_gen" name="polygon_boundry_generator" output="screen" respawn="True"/>
+  <node pkg="makers_people_detection" type="cloud_filter" name="point_cloud_filter" output="screen" respawn="True"/>
+  <node pkg="makers_people_detection" type="object_printer" name="object_printer" output="screen" respawn="True">
     <param name="file_path" value="$(arg output_file_location)" />
   </node>
 
   <!-- Clustering, this one came from a ROS library -->
-  <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" />
+  <!-- <node pkg="multi_object_tracking_lidar" type="kf_tracker" name="clustering" /> -->
+
+  <node pkg="makers_people_detection" type="quick_cluster" name="quick_cluster" output="screen" respawn="True"/>
 
   <!-- location of the upper left corner of the screen, output coordinates will be in this frame -->
   <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-1.95 2 0 0 0 -0.5 0.5  /map /screen 100" />

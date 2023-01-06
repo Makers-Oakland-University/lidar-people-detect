@@ -12,7 +12,7 @@ namespace makers_people_detect
         pn.param("file_path", file_path, std::string(""));
         ROS_INFO("Object printer will output object file to %s", file_path.c_str());
 
-        marker_sub = n.subscribe("/viz", 1, &ObjectPrinter::marker_callback, this);
+        marker_sub = n.subscribe("/clustered_markers", 1, &ObjectPrinter::marker_callback, this);
     }
 
     void ObjectPrinter::marker_callback(const visualization_msgs::MarkerArrayConstPtr &msg)
