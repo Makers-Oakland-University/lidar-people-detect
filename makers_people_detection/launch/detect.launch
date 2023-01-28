@@ -50,12 +50,12 @@
   <node pkg="makers_people_detection" type="quick_cluster" name="quick_cluster" output="screen" respawn="True"/>
 
   <!-- location of the upper left corner of the screen, output coordinates will be in this frame -->
-  <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-1.95 2 0 0 0 -0.5 0.5 /map /screen 100" />
+  <node pkg="tf" type="static_transform_publisher" name="screen_transform" args="-2.2 2.9 0 0 0 -0.5 0.5 /map /screen 100" />
 
   <!--Load dynamic reconfigure parameters --> 
   <!-- if you want to modify these parameters you can use the dynamic reconfigure gui which is runable through 'rosrun rqt_reconfigure rqt_reconfigure' then modify values to your needs. 
     After that hit the 'save' button and place the yaml file in the params folder and update the args of this line to point to the correct files --> 
-  <node name="dynamic_reconfigure_load_poly" pkg="dynamic_reconfigure" type="dynparam" args="load /polygon_boundry_generator $(find makers_people_detection)/params/poly_makers_lab_arc_testing.yaml" />
+  <node name="dynamic_reconfigure_load_poly" pkg="dynamic_reconfigure" type="dynparam" args="load /polygon_boundry_generator $(find makers_people_detection)/params/poly_maker_arc_config.yaml" />
   <node name="dynamic_reconfigure_load_clustering" pkg="dynamic_reconfigure" type="dynparam" args="load /quick_cluster $(find makers_people_detection)/params/quick_clustering.yaml" />
   
   <!-- Record (When we need it)   -->
